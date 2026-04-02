@@ -16,12 +16,13 @@ export async function handler(event) {
 
     const data = await response.json();
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify({
-        result: data?.choices?.[0]?.message?.content || "No response returned"
-      })
-    };
+console.log("OPENAI RESPONSE:", JSON.stringify(data));
+   return {
+  statusCode: 200,
+  body: JSON.stringify({
+    result: data?.choices?.[0]?.message?.content || JSON.stringify(data)
+  })
+};
 
   } catch (error) {
     return {
