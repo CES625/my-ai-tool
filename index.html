@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Tool</title>
+</head>
+<body>
+  <h2>My AI Tool</h2>
+  
+  <textarea id="input" placeholder="Enter your prompt"></textarea><br><br>
+  <button onclick="runTool()">Run</button>
+  
+  <pre id="output"></pre>
+
+  <script>
+    async function runTool() {
+      const input = document.getElementById('input').value;
+
+      const res = await fetch('/.netlify/functions/generate', {
+        method: 'POST',
+        body: JSON.stringify({ prompt: input })
+      });
+
+      const data = await res.json();
+      document.getElementById('output').innerText = data.result;
+    }
+  </script>
+</body>
+</html>
