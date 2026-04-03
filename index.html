@@ -1,28 +1,1395 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>AI Tool</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Call Script Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --coal:#0e1117;
+  --coal2:#151b26;
+  --coal3:#1e2636;
+  --coal4:#263040;
+  --border-dark:#2e3a4e;
+  --teal:#00c9a7;
+  --teal-dim:#00a888;
+  --teal-glow:rgba(0,201,167,.15);
+  --amber:#f59e0b;
+  --amber-dim:rgba(245,158,11,.12);
+  --red:#f87171;
+  --cream:#f8f5ef;
+  --cream2:#f0ece4;
+  --cream3:#e5e0d6;
+  --ink:#1a1a28;
+  --ink2:#3d3d52;
+  --ink3:#6b6b85;
+  --white:#ffffff;
+  --sans:'DM Sans',sans-serif;
+  --serif:'Instrument Serif',serif;
+  --mono:'IBM Plex Mono',monospace;
+  --r4:4px;
+  --r8:8px;
+  --r12:12px;
+  --shadow-sm:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+  --shadow-md:0 4px 12px rgba(0,0,0,.1),0 2px 4px rgba(0,0,0,.06);
+  --shadow-lg:0 10px 30px rgba(0,0,0,.12),0 4px 8px rgba(0,0,0,.06);
+}
+
+html,body{height:100%;overflow:hidden;background:var(--coal)}
+body{display:flex;flex-direction:column;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+
+/* ── LAYOUT ── */
+.layout{display:flex;height:100vh;overflow:hidden}
+
+/* ── LEFT PANEL ── */
+.panel-form{
+  width:420px;min-width:420px;
+  background:var(--coal2);
+  display:flex;flex-direction:column;
+  border-right:1px solid var(--border-dark);
+  overflow:hidden;
+}
+.panel-header{
+  padding:22px 24px 16px;
+  border-bottom:1px solid var(--border-dark);
+  flex-shrink:0;
+}
+.panel-header h1{
+  font-family:var(--serif);
+  font-size:22px;
+  color:var(--white);
+  font-weight:400;
+  letter-spacing:-.3px;
+  line-height:1.2;
+}
+.panel-header p{
+  font-size:12px;
+  color:var(--ink3);
+  margin-top:4px;
+  font-weight:400;
+  letter-spacing:.01em;
+}
+.teal-dot{
+  display:inline-block;
+  width:7px;height:7px;
+  border-radius:50%;
+  background:var(--teal);
+  margin-right:6px;
+  vertical-align:middle;
+  position:relative;top:-1px;
+  box-shadow:0 0 6px var(--teal);
+}
+.form-scroll{flex:1;overflow-y:auto;padding:16px 24px 0;}
+.form-scroll::-webkit-scrollbar{width:4px}
+.form-scroll::-webkit-scrollbar-track{background:transparent}
+.form-scroll::-webkit-scrollbar-thumb{background:var(--border-dark);border-radius:4px}
+
+/* ── ACCORDION ── */
+.accordion{margin-bottom:8px}
+.acc-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 14px;
+  background:var(--coal3);
+  border:1px solid var(--border-dark);
+  border-radius:var(--r8);
+  cursor:pointer;
+  user-select:none;
+  transition:background .15s,border-color .15s;
+}
+.acc-header:hover{background:var(--coal4);border-color:#3a4a60}
+.acc-header.open{
+  border-radius:var(--r8) var(--r8) 0 0;
+  border-bottom-color:transparent;
+  background:var(--coal4);
+}
+.acc-title{
+  display:flex;align-items:center;gap:10px;
+  font-size:12.5px;font-weight:600;
+  color:var(--white);letter-spacing:.04em;text-transform:uppercase;
+}
+.acc-num{
+  width:20px;height:20px;border-radius:50%;
+  background:var(--coal2);
+  border:1px solid var(--border-dark);
+  font-size:10px;font-weight:700;
+  color:var(--teal);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.acc-arrow{
+  width:16px;height:16px;
+  color:var(--ink3);
+  transition:transform .2s;
+  flex-shrink:0;
+}
+.acc-header.open .acc-arrow{transform:rotate(180deg)}
+.acc-body{
+  background:var(--coal3);
+  border:1px solid var(--border-dark);
+  border-top:none;
+  border-radius:0 0 var(--r8) var(--r8);
+  padding:14px;
+  display:none;
+}
+.acc-body.open{display:block}
+
+/* ── FORM FIELDS ── */
+.field{margin-bottom:12px}
+.field:last-child{margin-bottom:0}
+.field label{
+  display:block;
+  font-size:11.5px;font-weight:500;
+  color:#8a95a8;
+  margin-bottom:5px;letter-spacing:.03em;
+}
+.field input,.field select,.field textarea{
+  width:100%;
+  background:var(--coal2);
+  border:1px solid var(--border-dark);
+  border-radius:var(--r4);
+  color:var(--white);
+  font-family:var(--sans);
+  font-size:13px;
+  padding:8px 10px;
+  outline:none;
+  transition:border-color .15s,box-shadow .15s;
+  appearance:none;
+  -webkit-appearance:none;
+}
+.field input::placeholder,.field textarea::placeholder{color:#3d4a5c}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--teal);
+  box-shadow:0 0 0 3px var(--teal-glow);
+}
+.field textarea{resize:vertical;min-height:72px;line-height:1.5}
+.field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23546070' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 10px center;
+  padding-right:32px;
+  cursor:pointer;
+}
+.field select option{background:var(--coal3);color:var(--white)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field-row .field{margin-bottom:0}
+
+/* Radio group */
+.radio-group{display:flex;gap:6px}
+.radio-btn{
+  flex:1;
+  padding:7px 10px;
+  background:var(--coal2);
+  border:1px solid var(--border-dark);
+  border-radius:var(--r4);
+  font-size:12.5px;font-weight:500;color:#8a95a8;
+  cursor:pointer;text-align:center;
+  transition:all .15s;
+  user-select:none;
+}
+.radio-btn:hover{border-color:#3a4a60;color:var(--white)}
+.radio-btn.active{
+  background:var(--teal-glow);
+  border-color:var(--teal);
+  color:var(--teal);
+  font-weight:600;
+}
+
+/* Slider */
+.slider-wrap{display:flex;align-items:center;gap:10px}
+.slider-wrap input[type=range]{
+  flex:1;height:4px;
+  -webkit-appearance:none;appearance:none;
+  background:var(--border-dark);
+  border-radius:2px;outline:none;border:none;
+  padding:0;
+}
+.slider-wrap input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--teal);
+  cursor:pointer;
+  box-shadow:0 0 6px var(--teal);
+}
+.slider-wrap input[type=range]:focus{box-shadow:none;border:none}
+.slider-val{
+  min-width:28px;text-align:right;
+  font-size:12px;font-weight:600;color:var(--teal);
+  font-family:var(--mono);
+}
+
+/* Advanced features section */
+.acc-num-feat{
+  width:20px;height:20px;border-radius:50%;
+  background:rgba(167,139,250,.1);
+  border:1px solid rgba(167,139,250,.25);
+  font-size:10px;
+  color:#a78bfa;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.feat-badge{
+  display:inline-flex;align-items:center;
+  font-size:10px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 7px;border-radius:20px;
+  background:rgba(167,139,250,.1);
+  color:#7c3aed;
+  border:1px solid rgba(167,139,250,.2);
+  margin-left:6px;
+  vertical-align:middle;
+}
+
+/* ── GENERATE BUTTON ── */
+.generate-wrap{padding:16px 24px 20px;flex-shrink:0;border-top:1px solid var(--border-dark)}
+.btn-generate{
+  width:100%;
+  padding:13px 20px;
+  background:var(--teal);
+  color:var(--coal);
+  font-family:var(--sans);
+  font-size:14px;font-weight:700;
+  letter-spacing:.03em;
+  border:none;border-radius:var(--r8);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .2s;
+  position:relative;overflow:hidden;
+}
+.btn-generate:hover:not(:disabled){
+  background:#00ddb8;
+  box-shadow:0 4px 20px rgba(0,201,167,.35);
+  transform:translateY(-1px);
+}
+.btn-generate:active:not(:disabled){transform:translateY(0)}
+.btn-generate:disabled{
+  background:#1e3a35;color:#2d6b60;cursor:not-allowed;
+  box-shadow:none;transform:none;
+}
+.btn-generate svg{flex-shrink:0}
+
+/* Spinner */
+.spinner{
+  width:16px;height:16px;
+  border:2.5px solid rgba(0,0,0,.2);
+  border-top-color:var(--coal);
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  display:none;
+}
+.btn-generate.loading .spinner{display:block}
+.btn-generate.loading .btn-text{display:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── RIGHT PANEL ── */
+.panel-output{
+  flex:1;
+  background:var(--cream);
+  overflow-y:auto;
+  display:flex;flex-direction:column;
+}
+.panel-output::-webkit-scrollbar{width:6px}
+.panel-output::-webkit-scrollbar-track{background:var(--cream2)}
+.panel-output::-webkit-scrollbar-thumb{background:var(--cream3);border-radius:6px}
+
+/* ── OUTPUT TOOLBAR ── */
+.output-toolbar{
+  position:sticky;top:0;z-index:10;
+  background:rgba(248,245,239,.92);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--cream3);
+  padding:10px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;
+}
+.toolbar-left{display:flex;align-items:center;gap:10px}
+.toolbar-right{display:flex;align-items:center;gap:8px}
+.toolbar-title{
+  font-family:var(--serif);
+  font-size:16px;
+  color:var(--ink);
+  font-weight:400;
+  font-style:italic;
+}
+.toolbar-badge{
+  font-size:10.5px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;
+  padding:3px 8px;
+  background:var(--teal-glow);
+  color:var(--teal-dim);
+  border:1px solid rgba(0,201,167,.25);
+  border-radius:20px;
+}
+.btn-tool{
+  padding:6px 12px;
+  font-family:var(--sans);
+  font-size:12px;font-weight:500;
+  border-radius:var(--r4);
+  cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  transition:all .15s;border:none;
+  white-space:nowrap;
+}
+.btn-tool-outline{
+  background:transparent;
+  color:var(--ink2);
+  border:1px solid var(--cream3);
+}
+.btn-tool-outline:hover{background:var(--cream2);border-color:var(--ink3)}
+.btn-tool-solid{
+  background:var(--ink);
+  color:var(--white);
+}
+.btn-tool-solid:hover{background:#2d2d3e}
+.btn-tool-amber{
+  background:var(--amber-dim);
+  color:#b45309;
+  border:1px solid rgba(245,158,11,.25);
+}
+.btn-tool-amber:hover{background:rgba(245,158,11,.2)}
+.btn-tool-amber.active{background:rgba(245,158,11,.25);color:#92400e;font-weight:600}
+
+/* ── VARIATION TABS ── */
+.var-tabs{
+  display:none;
+  align-items:center;
+  gap:8px;
+  padding:10px 28px 0;
+  flex-shrink:0;
+}
+.var-tab{
+  padding:6px 16px;
+  font-family:var(--sans);
+  font-size:12.5px;font-weight:600;
+  border-radius:20px;
+  cursor:pointer;
+  border:1px solid var(--cream3);
+  background:transparent;
+  color:var(--ink3);
+  transition:all .15s;
+  letter-spacing:.01em;
+}
+.var-tab:hover{background:var(--cream2);color:var(--ink)}
+.var-tab.active{
+  background:var(--ink);
+  color:var(--white);
+  border-color:var(--ink);
+}
+.var-tab-hint{
+  font-size:11px;
+  color:var(--ink3);
+  margin-left:4px;
+  font-style:italic;
+}
+
+/* ── EMPTY STATE ── */
+.empty-state{
+  flex:1;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:60px 40px;text-align:center;
+  gap:16px;
+}
+.empty-icon{
+  width:64px;height:64px;
+  background:var(--cream2);
+  border:2px dashed var(--cream3);
+  border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ink3);
+}
+.empty-state h2{
+  font-family:var(--serif);
+  font-size:24px;font-weight:400;
+  color:var(--ink);font-style:italic;
+}
+.empty-state p{font-size:14px;color:var(--ink3);max-width:320px;line-height:1.6}
+
+/* ── SCRIPT OUTPUT ── */
+.script-output{padding:24px 28px;display:flex;flex-direction:column;gap:0;display:none}
+
+.section-group{margin-bottom:24px}
+.section-label{
+  display:flex;align-items:center;gap:8px;
+  margin-bottom:10px;
+}
+.section-label-text{
+  font-size:10px;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink3);
+}
+.section-label-line{flex:1;height:1px;background:var(--cream3)}
+
+/* Script card */
+.script-card{
+  background:var(--white);
+  border:1px solid var(--cream3);
+  border-radius:var(--r12);
+  overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  margin-bottom:12px;
+  transition:box-shadow .2s;
+}
+.script-card:hover{box-shadow:var(--shadow-md)}
+.script-card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px 10px;
+  border-bottom:1px solid var(--cream2);
+  background:rgba(248,245,239,.5);
+}
+.script-card-title{
+  display:flex;align-items:center;gap:8px;
+}
+.card-icon{
+  width:28px;height:28px;
+  border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;
+  flex-shrink:0;
+}
+.card-title-text{font-size:13.5px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.card-tag{
+  font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  padding:2px 7px;border-radius:20px;
+}
+.tag-customer{background:rgba(99,102,241,.08);color:#4f46e5;border:1px solid rgba(99,102,241,.15)}
+.tag-agent{background:rgba(245,158,11,.1);color:#b45309;border:1px solid rgba(245,158,11,.2)}
+.tag-both{background:var(--teal-glow);color:var(--teal-dim);border:1px solid rgba(0,201,167,.2)}
+.card-actions{display:flex;gap:6px}
+.btn-card{
+  padding:5px 10px;
+  font-family:var(--sans);
+  font-size:11.5px;font-weight:500;
+  border-radius:var(--r4);
+  cursor:pointer;
+  display:flex;align-items:center;gap:5px;
+  transition:all .15s;
+  white-space:nowrap;
+}
+.btn-copy-card{
+  background:transparent;color:var(--ink2);
+  border:1px solid var(--cream3);
+}
+.btn-copy-card:hover{background:var(--cream2);border-color:var(--ink3);color:var(--ink)}
+.btn-copy-card.copied{color:var(--teal-dim);border-color:rgba(0,201,167,.3);background:var(--teal-glow)}
+.btn-regen{
+  background:var(--ink);color:var(--white);
+  border:1px solid transparent;
+}
+.btn-regen:hover{background:#2d2d3e}
+.btn-regen:disabled{background:#c5c0b8;cursor:not-allowed}
+.script-card-body{padding:16px}
+
+/* Script text */
+.script-text{
+  font-family:var(--mono);
+  font-size:12.5px;
+  line-height:1.75;
+  color:var(--ink);
+  white-space:pre-wrap;
+  word-break:break-word;
+}
+.script-text .speaker{
+  font-weight:500;
+  color:var(--teal-dim);
+  display:block;
+  margin-top:10px;
+}
+.script-text .speaker:first-child{margin-top:0}
+
+/* Coaching notes */
+.coaching-notes{
+  margin-top:12px;
+  padding:12px 14px;
+  background:var(--amber-dim);
+  border:1px solid rgba(245,158,11,.2);
+  border-radius:var(--r8);
+  display:none;
+}
+.coaching-notes.visible{display:block}
+.coaching-label{
+  font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:#92400e;
+  margin-bottom:6px;
+  display:flex;align-items:center;gap:6px;
+}
+.coaching-text{
+  font-size:12px;line-height:1.7;
+  color:#78350f;
+  font-family:var(--sans);
+}
+
+/* Loading skeleton */
+.skeleton-wrap{padding:24px 28px;display:flex;flex-direction:column;gap:16px;display:none}
+.skeleton-card{
+  background:var(--white);
+  border:1px solid var(--cream3);
+  border-radius:var(--r12);
+  padding:16px;
+  box-shadow:var(--shadow-sm);
+}
+.skel{
+  background:linear-gradient(90deg,var(--cream2) 0%,var(--cream3) 50%,var(--cream2) 100%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s infinite;
+  border-radius:4px;
+}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-h{height:14px;margin-bottom:8px}
+.skel-line{height:10px;margin-bottom:6px}
+
+/* Error banner */
+.error-banner{
+  margin:16px 28px;
+  padding:12px 16px;
+  background:#fef2f2;
+  border:1px solid #fecaca;
+  border-radius:var(--r8);
+  color:#991b1b;
+  font-size:13px;
+  display:none;
+  align-items:center;gap:10px;
+}
+.hidden{display:none!important}
+</style>
 </head>
 <body>
-  <h2>My AI Tool</h2>
-  
-  <textarea id="input" placeholder="Enter your prompt"></textarea><br><br>
-  <button onclick="runTool()">Run</button>
-  
-  <pre id="output"></pre>
 
-  <script>
-    async function runTool() {
-      const input = document.getElementById('input').value;
+<div class="layout">
 
-      const res = await fetch('/.netlify/functions/generate', {
-        method: 'POST',
-        body: JSON.stringify({ prompt: input })
-      });
+  <!-- ════════ LEFT PANEL — FORM ════════ -->
+  <div class="panel-form">
+    <div class="panel-header">
+      <h1><span class="teal-dot"></span>Call Script Builder</h1>
+      <p>Powered by AI · Contact Center Operations</p>
+    </div>
 
-      const data = await res.json();
-      document.getElementById('output').innerText = data.result;
+    <div class="form-scroll" id="formScroll">
+
+      <!-- SECTION 1: Call Context -->
+      <div class="accordion">
+        <div class="acc-header open" onclick="toggleAcc(this)">
+          <div class="acc-title"><span class="acc-num">1</span>Call Context</div>
+          <svg class="acc-arrow" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="acc-body open">
+          <div class="field">
+            <label>Call Type</label>
+            <div class="radio-group" id="callType">
+              <div class="radio-btn active" data-value="Outbound" onclick="selectRadio(this,'callType')">Outbound</div>
+              <div class="radio-btn" data-value="Inbound" onclick="selectRadio(this,'callType')">Inbound</div>
+              <div class="radio-btn" data-value="Blended" onclick="selectRadio(this,'callType')">Blended</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Program Type</label>
+            <select id="programType">
+              <option value="">Select program type…</option>
+              <option>Sales — New Acquisition</option>
+              <option>Sales — Upsell / Cross-sell</option>
+              <option>Sales — Win-back / Retention</option>
+              <option>Customer Service — Tier 1</option>
+              <option>Customer Service — Escalation</option>
+              <option>Collections</option>
+              <option>Appointment Setting</option>
+              <option>Survey / Research</option>
+              <option>Compliance Outreach</option>
+              <option>Lead Qualification</option>
+              <option>Billing / Account Management</option>
+              <option>Technical Support</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Industry</label>
+            <input type="text" id="industry" placeholder="e.g. Healthcare, Telecom, Financial Services…">
+          </div>
+          <div class="field">
+            <label>Call Objective</label>
+            <input type="text" id="callObjective" placeholder="e.g. Schedule a free consultation">
+          </div>
+          <div class="field">
+            <label>Call Stage</label>
+            <select id="callStage">
+              <option value="">Select stage…</option>
+              <option>First Touch — Cold</option>
+              <option>First Touch — Warm Lead</option>
+              <option>Follow-up — No Prior Contact</option>
+              <option>Follow-up — Prior Interest</option>
+              <option>Nurture — Long Cycle</option>
+              <option>Close Attempt</option>
+              <option>Post-Sale Onboarding</option>
+              <option>Renewal / Retention</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Customer Profile -->
+      <div class="accordion">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title"><span class="acc-num">2</span>Customer Profile</div>
+          <svg class="acc-arrow" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="acc-body">
+          <div class="field">
+            <label>Brand Familiarity</label>
+            <div class="radio-group" id="familiarity">
+              <div class="radio-btn active" data-value="Unaware" onclick="selectRadio(this,'familiarity')">Unaware</div>
+              <div class="radio-btn" data-value="Aware" onclick="selectRadio(this,'familiarity')">Aware</div>
+              <div class="radio-btn" data-value="Prior Customer" onclick="selectRadio(this,'familiarity')">Prior Customer</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Expected Sentiment</label>
+            <div class="radio-group" id="sentiment">
+              <div class="radio-btn active" data-value="Neutral" onclick="selectRadio(this,'sentiment')">Neutral</div>
+              <div class="radio-btn" data-value="Positive" onclick="selectRadio(this,'sentiment')">Positive</div>
+              <div class="radio-btn" data-value="Skeptical" onclick="selectRadio(this,'sentiment')">Skeptical</div>
+              <div class="radio-btn" data-value="Hostile" onclick="selectRadio(this,'sentiment')">Hostile</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Decision Maker</label>
+            <div class="radio-group" id="decisionMaker">
+              <div class="radio-btn active" data-value="Yes" onclick="selectRadio(this,'decisionMaker')">Yes — Direct</div>
+              <div class="radio-btn" data-value="Gatekeeper" onclick="selectRadio(this,'decisionMaker')">Gatekeeper</div>
+              <div class="radio-btn" data-value="Unknown" onclick="selectRadio(this,'decisionMaker')">Unknown</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Channel Origin</label>
+            <select id="channelOrigin">
+              <option value="">Select origin…</option>
+              <option>Purchased List</option>
+              <option>Inbound Web Lead</option>
+              <option>Referral</option>
+              <option>Chat / Digital Transfer</option>
+              <option>Direct Mail Response</option>
+              <option>Prior Call — No Sale</option>
+              <option>Social Media Lead</option>
+              <option>Event / Tradeshow</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: Offer / Scenario -->
+      <div class="accordion">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title"><span class="acc-num">3</span>Offer / Scenario</div>
+          <svg class="acc-arrow" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="acc-body">
+          <div class="field">
+            <label>Product / Service</label>
+            <input type="text" id="product" placeholder="e.g. Home Security Monitoring Plan">
+          </div>
+          <div class="field">
+            <label>Key Value Propositions</label>
+            <textarea id="valueProps" placeholder="e.g. 24/7 monitoring, no contract, first month free…"></textarea>
+          </div>
+          <div class="field">
+            <label>Pricing / Offer Details</label>
+            <input type="text" id="pricing" placeholder="e.g. $29.99/mo — mention only if asked">
+          </div>
+          <div class="field">
+            <label>Common Objections to Address</label>
+            <textarea id="objections" placeholder="e.g. 'I already have a system', 'Not interested', 'Too expensive'…"></textarea>
+          </div>
+          <div class="field">
+            <label>Required Discovery Questions</label>
+            <textarea id="requiredQuestions" placeholder="e.g. How many entry points does your home have?"></textarea>
+          </div>
+          <div class="field">
+            <label>Required Compliance Language</label>
+            <textarea id="complianceLanguage" placeholder="e.g. 'This call may be recorded for quality assurance.'"></textarea>
+          </div>
+          <div class="field">
+            <label>Call-to-Action Type</label>
+            <select id="ctaType">
+              <option value="">Select CTA…</option>
+              <option>Hard Close — Same Call Sale</option>
+              <option>Soft Close — Schedule Callback</option>
+              <option>Transfer to Closer / Specialist</option>
+              <option>Send Information / Email</option>
+              <option>Book Appointment</option>
+              <option>Confirm Enrollment</option>
+              <option>Get Verbal Agreement</option>
+              <option>Escalate to Supervisor</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 4: Operational Constraints -->
+      <div class="accordion">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title"><span class="acc-num">4</span>Operational Constraints</div>
+          <svg class="acc-arrow" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="acc-body">
+          <div class="field">
+            <label>Target AHT (minutes)</label>
+            <div class="slider-wrap">
+              <input type="range" id="targetAHT" min="2" max="20" value="6" oninput="document.getElementById('ahtVal').textContent=this.value+'m'">
+              <span class="slider-val" id="ahtVal">6m</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Script Strictness</label>
+            <div class="radio-group" id="strictness">
+              <div class="radio-btn" data-value="Structured" onclick="selectRadio(this,'strictness')">Structured</div>
+              <div class="radio-btn active" data-value="Hybrid" onclick="selectRadio(this,'strictness')">Hybrid</div>
+              <div class="radio-btn" data-value="Loose" onclick="selectRadio(this,'strictness')">Loose</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Script Length</label>
+            <div class="radio-group" id="scriptLength">
+              <div class="radio-btn" data-value="Short" onclick="selectRadio(this,'scriptLength')">Short</div>
+              <div class="radio-btn active" data-value="Standard" onclick="selectRadio(this,'scriptLength')">Standard</div>
+              <div class="radio-btn" data-value="Detailed" onclick="selectRadio(this,'scriptLength')">Detailed</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Compliance Sensitivity</label>
+            <div class="radio-group" id="complianceSensitivity">
+              <div class="radio-btn" data-value="Low" onclick="selectRadio(this,'complianceSensitivity')">Low</div>
+              <div class="radio-btn active" data-value="Standard" onclick="selectRadio(this,'complianceSensitivity')">Standard</div>
+              <div class="radio-btn" data-value="High" onclick="selectRadio(this,'complianceSensitivity')">High</div>
+              <div class="radio-btn" data-value="Regulated" onclick="selectRadio(this,'complianceSensitivity')">Regulated</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Persuasion Intensity</label>
+            <div class="slider-wrap">
+              <input type="range" id="persuasionLevel" min="1" max="5" value="3" oninput="updatePersuasion(this.value)">
+              <span class="slider-val" id="persuasionVal">3</span>
+            </div>
+            <div style="font-size:10.5px;color:var(--ink3);margin-top:4px;font-family:var(--mono)" id="persuasionLabel">Moderate — Balanced approach</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 5: Tone & Style -->
+      <div class="accordion" style="margin-bottom:8px">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title"><span class="acc-num">5</span>Tone &amp; Style</div>
+          <svg class="acc-arrow" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="acc-body">
+          <div class="field">
+            <label>Agent Tone</label>
+            <select id="tone">
+              <option value="">Select tone…</option>
+              <option>Professional — Formal</option>
+              <option>Professional — Conversational</option>
+              <option>Warm &amp; Empathetic</option>
+              <option>Confident &amp; Assertive</option>
+              <option>Consultative &amp; Advisory</option>
+              <option>Friendly &amp; Casual</option>
+              <option>Urgent &amp; Direct</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Brand Voice</label>
+            <input type="text" id="brandVoice" placeholder="e.g. Trustworthy, local, no-nonsense…">
+          </div>
+          <div class="field">
+            <label>Reading Level</label>
+            <div class="radio-group" id="readingLevel">
+              <div class="radio-btn" data-value="Simple" onclick="selectRadio(this,'readingLevel')">Simple</div>
+              <div class="radio-btn active" data-value="Standard" onclick="selectRadio(this,'readingLevel')">Standard</div>
+              <div class="radio-btn" data-value="Advanced" onclick="selectRadio(this,'readingLevel')">Advanced</div>
+            </div>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Call Control Level</label>
+            <div class="radio-group" id="callControl">
+              <div class="radio-btn" data-value="Low" onclick="selectRadio(this,'callControl')">Low</div>
+              <div class="radio-btn active" data-value="Medium" onclick="selectRadio(this,'callControl')">Medium</div>
+              <div class="radio-btn" data-value="High" onclick="selectRadio(this,'callControl')">High</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 6: Advanced Features -->
+      <div class="accordion" style="margin-bottom:0">
+        <div class="acc-header" onclick="toggleAcc(this)">
+          <div class="acc-title">
+            <span class="acc-num-feat">⚡</span>
+            Advanced Features
+            <span class="feat-badge">Optional</span>
+          </div>
+          <svg class="acc-arrow" viewBox="0 0 16 16" fill="none"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="acc-body">
+          <div class="field">
+            <label>Script Variations</label>
+            <div class="radio-group" id="scriptVariations">
+              <div class="radio-btn active" data-value="false" onclick="selectRadio(this,'scriptVariations')">Single Script</div>
+              <div class="radio-btn" data-value="true" onclick="selectRadio(this,'scriptVariations')">A/B Variations</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Difficulty Mode</label>
+            <select id="difficultyMode">
+              <option value="">Standard</option>
+              <option value="easy">Easy — Cooperative customer</option>
+              <option value="advanced">Advanced — Resistant, objections, time pressure</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Customer Persona</label>
+            <select id="personaSelect">
+              <option value="">No specific persona</option>
+              <option value="analytical">Analytical — Data-driven, needs proof</option>
+              <option value="skeptical">Skeptical — Doubts claims, needs validation</option>
+              <option value="friendly">Friendly — Warm, engaged, easy to talk to</option>
+              <option value="impatient">Impatient — Short on time, wants the point fast</option>
+              <option value="price-sensitive">Price-Sensitive — Budget-focused, needs justification</option>
+              <option value="authority-driven">Authority-Driven — Needs to feel in control</option>
+            </select>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>Rewrite Goal</label>
+            <select id="rewriteGoal">
+              <option value="">None</option>
+              <option value="more concise">More Concise</option>
+              <option value="more sales-focused">More Sales-Focused</option>
+              <option value="more empathetic">More Empathetic</option>
+              <option value="more compliant">More Compliant</option>
+              <option value="more assertive">More Assertive</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:8px"></div>
+    </div><!-- /form-scroll -->
+
+    <div class="generate-wrap">
+      <button class="btn-generate" id="generateBtn" onclick="generateScript()">
+        <svg class="spinner" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="18 8"/></svg>
+        <span class="btn-text" style="display:flex;align-items:center;gap:8px">
+          <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><path d="M7.5 1L9.18 5.26L14 5.81L10.5 9.07L11.59 14L7.5 11.6L3.41 14L4.5 9.07L1 5.81L5.82 5.26L7.5 1Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+          Generate Script
+        </span>
+      </button>
+    </div>
+  </div><!-- /panel-form -->
+
+
+  <!-- ════════ RIGHT PANEL — OUTPUT ════════ -->
+  <div class="panel-output" id="panelOutput">
+
+    <!-- Toolbar -->
+    <div class="output-toolbar" id="outputToolbar">
+      <div class="toolbar-left">
+        <span class="toolbar-title">Script Output</span>
+        <span class="toolbar-badge" id="toolbarBadge" style="display:none">Ready</span>
+      </div>
+      <div class="toolbar-right" id="toolbarActions" style="display:none">
+        <button class="btn-tool btn-tool-amber" id="toggleCoaching" onclick="toggleCoaching()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5C3.74 1.5 1.5 3.74 1.5 6.5S3.74 11.5 6.5 11.5 11.5 9.26 11.5 6.5 9.26 1.5 6.5 1.5ZM6.5 9.5V5.5M6.5 4.5V3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Coaching Notes
+        </button>
+        <button class="btn-tool btn-tool-outline" onclick="copyFullScript()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="4.5" y="4.5" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 8.5H2.5a1 1 0 01-1-1v-5a1 1 0 011-1h5a1 1 0 011 1v2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Copy All
+        </button>
+        <button class="btn-tool btn-tool-solid" onclick="downloadScript()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5v7M4 6.5l2.5 2.5L9 6.5M2.5 10.5h8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Download .txt
+        </button>
+      </div>
+    </div>
+
+    <!-- Variation Tabs -->
+    <div class="var-tabs" id="variationTabs">
+      <button class="var-tab active" data-var="variation_1" onclick="switchVariation('variation_1')">Variation A</button>
+      <button class="var-tab" data-var="variation_2" onclick="switchVariation('variation_2')">Variation B</button>
+      <span class="var-tab-hint">Different tone, strategy &amp; flow</span>
+    </div>
+
+    <!-- Error banner -->
+    <div class="error-banner" id="errorBanner">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M8 5v3.5M8 10.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <span id="errorText">Something went wrong. Please try again.</span>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="5" y="4" width="18" height="20" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M9 9h10M9 13h10M9 17h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <h2>Your script will appear here</h2>
+      <p>Fill in the call parameters on the left and click <strong>Generate Script</strong> to build a production-ready call script with agent guidance.</p>
+    </div>
+
+    <!-- Skeleton loader -->
+    <div class="skeleton-wrap" id="skeletonWrap">
+      <div class="skeleton-card">
+        <div class="skel skel-h" style="width:40%"></div>
+        <div class="skel skel-line" style="width:90%"></div>
+        <div class="skel skel-line" style="width:75%"></div>
+        <div class="skel skel-line" style="width:82%"></div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skel skel-h" style="width:35%"></div>
+        <div class="skel skel-line" style="width:88%"></div>
+        <div class="skel skel-line" style="width:70%"></div>
+        <div class="skel skel-line" style="width:95%"></div>
+        <div class="skel skel-line" style="width:60%"></div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skel skel-h" style="width:45%"></div>
+        <div class="skel skel-line" style="width:85%"></div>
+        <div class="skel skel-line" style="width:78%"></div>
+      </div>
+      <div class="skeleton-card">
+        <div class="skel skel-h" style="width:38%"></div>
+        <div class="skel skel-line" style="width:92%"></div>
+        <div class="skel skel-line" style="width:65%"></div>
+        <div class="skel skel-line" style="width:80%"></div>
+      </div>
+    </div>
+
+    <!-- Script output -->
+    <div class="script-output" id="scriptOutput"></div>
+
+  </div><!-- /panel-output -->
+</div><!-- /layout -->
+
+<script>
+// ── STATE ──────────────────────────────────────────────────
+var scriptData       = {};
+var coachingVisible  = false;
+var currentFormData  = {};
+var activeVariation  = null;
+
+// ── SECTIONS CONFIG ────────────────────────────────────────
+var SECTIONS = [
+  { key:'opening',            label:'Opening',            tag:'customer', icon:'🎙️', group:'Customer-Facing Script' },
+  { key:'discovery',          label:'Discovery',          tag:'customer', icon:'🔍', group:'Customer-Facing Script' },
+  { key:'core_messaging',     label:'Core Messaging',     tag:'customer', icon:'💬', group:'Customer-Facing Script' },
+  { key:'objection_handling', label:'Objection Handling', tag:'customer', icon:'🛡️', group:'Customer-Facing Script' },
+  { key:'call_control',       label:'Call Control',       tag:'both',     icon:'🎛️', group:'Customer-Facing Script' },
+  { key:'closing',            label:'Closing',            tag:'customer', icon:'✅', group:'Customer-Facing Script' },
+  { key:'compliance',         label:'Compliance',         tag:'both',     icon:'⚖️', group:'Compliance & Guidance' },
+  { key:'agent_guidance',     label:'Agent Guidance',     tag:'agent',    icon:'🧭', group:'Compliance & Guidance' }
+];
+
+var tagConfig = {
+  'customer': { css:'tag-customer', label:'Customer-Facing' },
+  'agent':    { css:'tag-agent',    label:'Agent Only' },
+  'both':     { css:'tag-both',     label:'Agent + Customer' }
+};
+
+// ── ACCORDION ──────────────────────────────────────────────
+function toggleAcc(header) {
+  var body   = header.nextElementSibling;
+  var isOpen = header.classList.contains('open');
+  header.classList.toggle('open', !isOpen);
+  body.classList.toggle('open', !isOpen);
+}
+
+// ── RADIO GROUPS ───────────────────────────────────────────
+function selectRadio(el, group) {
+  document.getElementById(group).querySelectorAll('.radio-btn').forEach(function(b) {
+    b.classList.remove('active');
+  });
+  el.classList.add('active');
+}
+function getRadio(group) {
+  var active = document.querySelector('#' + group + ' .radio-btn.active');
+  return active ? active.dataset.value : '';
+}
+
+// ── PERSUASION SLIDER ──────────────────────────────────────
+var persuasionLabels = {
+  '1':'Low — Informational only',
+  '2':'Mild — Gentle nudges',
+  '3':'Moderate — Balanced approach',
+  '4':'High — Active closing',
+  '5':'Aggressive — Full pressure'
+};
+function updatePersuasion(val) {
+  document.getElementById('persuasionVal').textContent   = val;
+  document.getElementById('persuasionLabel').textContent = persuasionLabels[val] || '';
+}
+
+// ── COLLECT FORM DATA ──────────────────────────────────────
+function collectFormData() {
+  return {
+    call_context: {
+      call_type:      getRadio('callType'),
+      program_type:   document.getElementById('programType').value,
+      industry:       document.getElementById('industry').value,
+      call_objective: document.getElementById('callObjective').value,
+      call_stage:     document.getElementById('callStage').value,
+    },
+    customer_profile: {
+      familiarity:    getRadio('familiarity'),
+      sentiment:      getRadio('sentiment'),
+      decision_maker: getRadio('decisionMaker'),
+      channel_origin: document.getElementById('channelOrigin').value,
+    },
+    offer: {
+      product:             document.getElementById('product').value,
+      value_props:         document.getElementById('valueProps').value,
+      pricing:             document.getElementById('pricing').value,
+      objections:          document.getElementById('objections').value,
+      required_questions:  document.getElementById('requiredQuestions').value,
+      compliance_language: document.getElementById('complianceLanguage').value,
+      cta_type:            document.getElementById('ctaType').value,
+    },
+    operational: {
+      target_aht_minutes:     parseInt(document.getElementById('targetAHT').value),
+      strictness:             getRadio('strictness'),
+      script_length:          getRadio('scriptLength'),
+      compliance_sensitivity: getRadio('complianceSensitivity'),
+      persuasion_intensity:   parseInt(document.getElementById('persuasionLevel').value),
+    },
+    tone_style: {
+      tone:               document.getElementById('tone').value,
+      brand_voice:        document.getElementById('brandVoice').value,
+      reading_level:      getRadio('readingLevel'),
+      call_control_level: getRadio('callControl'),
+    },
+    feature_flags: {
+      script_variations: getRadio('scriptVariations') === 'true',
+      difficulty_mode:   document.getElementById('difficultyMode').value   || null,
+      persona:           document.getElementById('personaSelect').value    || null,
+      rewrite_goal:      document.getElementById('rewriteGoal').value      || null,
+    },
+  };
+}
+
+// ── GENERATE SCRIPT ────────────────────────────────────────
+function generateScript() {
+  var btn      = document.getElementById('generateBtn');
+  var formData = collectFormData();
+  currentFormData = formData;
+
+  btn.disabled = true;
+  btn.classList.add('loading');
+  document.getElementById('emptyState').style.display      = 'none';
+  document.getElementById('skeletonWrap').style.display    = 'flex';
+  document.getElementById('skeletonWrap').style.flexDirection = 'column';
+  document.getElementById('scriptOutput').style.display    = 'none';
+  document.getElementById('errorBanner').style.display     = 'none';
+  document.getElementById('toolbarActions').style.display  = 'none';
+  document.getElementById('toolbarBadge').style.display    = 'none';
+  hideVariationTabs();
+
+  fetch('/.netlify/functions/generate-script', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(formData)
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('Server returned ' + res.status);
+    return res.json();
+  })
+  .then(function(data) {
+    var sections = data.sections || data;
+    scriptData   = sections;
+
+    if (sections.variation_1 && sections.variation_2) {
+      showVariationTabs('variation_1');
+      renderScript(sections.variation_1);
+    } else {
+      hideVariationTabs();
+      renderScript(sections);
     }
-  </script>
+
+    document.getElementById('skeletonWrap').style.display   = 'none';
+    document.getElementById('scriptOutput').style.display   = 'flex';
+    document.getElementById('toolbarActions').style.display = 'flex';
+    var badge = document.getElementById('toolbarBadge');
+    badge.style.display  = 'inline-flex';
+    badge.textContent    = sections.variation_1 ? 'A/B Ready' : 'Ready';
+  })
+  .catch(function(err) {
+    document.getElementById('skeletonWrap').style.display = 'none';
+    document.getElementById('emptyState').style.display   = 'flex';
+    var banner = document.getElementById('errorBanner');
+    banner.style.display = 'flex';
+    document.getElementById('errorText').textContent = err.message || 'Failed to generate script. Check your connection and try again.';
+  })
+  .finally(function() {
+    btn.disabled = false;
+    btn.classList.remove('loading');
+  });
+}
+
+// ── RENDER SCRIPT ──────────────────────────────────────────
+function renderScript(data) {
+  var container = document.getElementById('scriptOutput');
+  container.innerHTML = '';
+
+  var groups = {};
+  SECTIONS.forEach(function(s) {
+    if (!groups[s.group]) groups[s.group] = [];
+    groups[s.group].push(s);
+  });
+
+  Object.keys(groups).forEach(function(groupName) {
+    var groupDiv  = document.createElement('div');
+    groupDiv.style.marginBottom = '20px';
+
+    var labelRow = document.createElement('div');
+    labelRow.className = 'section-label';
+    labelRow.innerHTML = '<span class="section-label-line"></span><span class="section-label-text">' + groupName + '</span><span class="section-label-line"></span>';
+    groupDiv.appendChild(labelRow);
+
+    groups[groupName].forEach(function(sec) {
+      var sectionData = data[sec.key] || { script: '[No content returned for this section]', coaching: '' };
+      groupDiv.appendChild(buildCard(sec, sectionData));
+    });
+
+    container.appendChild(groupDiv);
+  });
+}
+
+function buildCard(sec, sectionData) {
+  var tag    = tagConfig[sec.tag];
+  var card   = document.createElement('div');
+  card.className = 'script-card';
+  card.id        = 'card-' + sec.key;
+
+  card.innerHTML =
+    '<div class="script-card-header">' +
+      '<div class="script-card-title">' +
+        '<div class="card-icon" style="background:' + iconBg(sec.tag) + '">' + sec.icon + '</div>' +
+        '<span class="card-title-text">' + sec.label + '</span>' +
+        '<span class="card-tag ' + tag.css + '">' + tag.label + '</span>' +
+      '</div>' +
+      '<div class="card-actions">' +
+        '<button class="btn-card btn-copy-card" id="copy-' + sec.key + '" onclick="copySection(\'' + sec.key + '\')">' +
+          '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="4" y="4" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M4 8H2.5a.5.5 0 01-.5-.5v-5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5V4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>' +
+          'Copy' +
+        '</button>' +
+        '<button class="btn-card btn-regen" id="regen-' + sec.key + '" onclick="regenerateSection(\'' + sec.key + '\')">' +
+          '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 112 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M10 3.5V6H7.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+          'Regenerate' +
+        '</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="script-card-body">' +
+      '<div class="script-text" id="script-' + sec.key + '">' + formatScript(sectionData.script || '') + '</div>' +
+      (sectionData.coaching ?
+        '<div class="coaching-notes" id="coaching-' + sec.key + '">' +
+          '<div class="coaching-label">' +
+            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4.5" stroke="currentColor" stroke-width="1.1"/><path d="M5.5 3.5v2.5M5.5 7.5v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>' +
+            'Agent Coaching Note' +
+          '</div>' +
+          '<div class="coaching-text">' + (sectionData.coaching || '') + '</div>' +
+        '</div>' : '') +
+    '</div>';
+
+  return card;
+}
+
+function iconBg(tag) {
+  if (tag === 'customer') return 'rgba(99,102,241,.07)';
+  if (tag === 'agent')    return 'rgba(245,158,11,.08)';
+  return 'var(--teal-glow)';
+}
+
+function formatScript(text) {
+  if (!text) return '';
+  var escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  escaped = escaped.replace(/^(AGENT:|CUSTOMER:|REP:|PROSPECT:|AGENT \([^)]+\):|CUSTOMER \([^)]+\):)/gm,
+    '<span class="speaker">$1</span>');
+  return escaped;
+}
+
+// ── REGENERATE SECTION ─────────────────────────────────────
+function regenerateSection(sectionKey) {
+  var btn = document.getElementById('regen-' + sectionKey);
+  btn.disabled = true;
+  btn.innerHTML = '<svg style="width:11px;height:11px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block" viewBox="0 0 16 16"></svg>';
+  btn.style.minWidth = '32px';
+
+  var payload = Object.assign({}, currentFormData, { regenerate_section: sectionKey });
+
+  fetch('/.netlify/functions/generate-script', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(payload)
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('Server error');
+    return res.json();
+  })
+  .then(function(data) {
+    var sections = data.sections || data;
+    if (sections[sectionKey]) {
+      var scriptEl = document.getElementById('script-' + sectionKey);
+      if (scriptEl) {
+        scriptEl.innerHTML         = formatScript(sections[sectionKey].script || '');
+        scriptEl.style.opacity     = '0';
+        scriptEl.style.transition  = 'opacity .3s';
+        requestAnimationFrame(function() { scriptEl.style.opacity = '1'; });
+      }
+      var coachEl = document.getElementById('coaching-' + sectionKey);
+      if (coachEl && sections[sectionKey].coaching) {
+        coachEl.querySelector('.coaching-text').textContent = sections[sectionKey].coaching;
+      }
+      if (activeVariation && scriptData[activeVariation]) {
+        scriptData[activeVariation][sectionKey] = sections[sectionKey];
+      } else {
+        scriptData[sectionKey] = sections[sectionKey];
+      }
+    }
+  })
+  .catch(function(err) { alert('Failed to regenerate section: ' + err.message); })
+  .finally(function() {
+    btn.disabled = false;
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M10 6A4 4 0 112 6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M10 3.5V6H7.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>Regenerate';
+    btn.style.minWidth = '';
+  });
+}
+
+// ── COPY SECTION ───────────────────────────────────────────
+function copySection(sectionKey) {
+  var el   = document.getElementById('script-' + sectionKey);
+  var text = el ? el.innerText : '';
+  var coaching = document.getElementById('coaching-' + sectionKey);
+  if (coaching && coaching.classList.contains('visible')) {
+    text += '\n\n--- COACHING NOTE ---\n' + coaching.querySelector('.coaching-text').textContent;
+  }
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.getElementById('copy-' + sectionKey);
+    btn.classList.add('copied');
+    btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Copied!';
+    setTimeout(function() {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="4" y="4" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/><path d="M4 8H2.5a.5.5 0 01-.5-.5v-5a.5.5 0 01.5-.5h5a.5.5 0 01.5.5V4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>Copy';
+    }, 2000);
+  });
+}
+
+// ── COPY FULL SCRIPT ───────────────────────────────────────
+function copyFullScript() {
+  var lines = [];
+  SECTIONS.forEach(function(sec) {
+    var el = document.getElementById('script-' + sec.key);
+    if (el) {
+      lines.push('═══ ' + sec.label.toUpperCase() + ' ═══');
+      lines.push(el.innerText);
+      lines.push('');
+    }
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(function() {
+    var btn  = event.currentTarget;
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5l3.5 3.5 5.5-6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Copied!';
+    setTimeout(function() { btn.innerHTML = orig; }, 2000);
+  });
+}
+
+// ── DOWNLOAD SCRIPT ────────────────────────────────────────
+function downloadScript() {
+  var lines = [];
+  var fd    = currentFormData;
+  lines.push('AI CALL SCRIPT BUILDER — GENERATED SCRIPT');
+  lines.push('==========================================');
+  if (fd.call_context) {
+    lines.push('Program:   ' + (fd.call_context.program_type   || '—'));
+    lines.push('Industry:  ' + (fd.call_context.industry       || '—'));
+    lines.push('Objective: ' + (fd.call_context.call_objective || '—'));
+  }
+  if (fd.feature_flags) {
+    if (fd.feature_flags.script_variations) lines.push('Mode:       A/B Variations');
+    if (fd.feature_flags.difficulty_mode)   lines.push('Difficulty: ' + fd.feature_flags.difficulty_mode);
+    if (fd.feature_flags.persona)           lines.push('Persona:    ' + fd.feature_flags.persona);
+    if (fd.feature_flags.rewrite_goal)      lines.push('Rewrite:    ' + fd.feature_flags.rewrite_goal);
+  }
+  lines.push('Generated: ' + new Date().toLocaleString());
+  lines.push('');
+
+  var variantsToExport = scriptData.variation_1
+    ? [['VARIATION A', scriptData.variation_1], ['VARIATION B', scriptData.variation_2]]
+    : [['SCRIPT', scriptData]];
+
+  variantsToExport.forEach(function(pair) {
+    var label    = pair[0];
+    var sections = pair[1];
+    lines.push('');
+    lines.push('══════════════════════════════════════════');
+    lines.push(label);
+    lines.push('══════════════════════════════════════════');
+    SECTIONS.forEach(function(sec) {
+      var d = sections[sec.key];
+      if (!d) return;
+      lines.push('');
+      lines.push('── ' + sec.label.toUpperCase() + ' ──');
+      lines.push(d.script || '');
+      if (d.coaching) {
+        lines.push('');
+        lines.push('[COACHING NOTE]');
+        lines.push(d.coaching);
+      }
+    });
+  });
+
+  var blob = new Blob([lines.join('\n')], { type:'text/plain' });
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'call-script-' + Date.now() + '.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── TOGGLE COACHING ────────────────────────────────────────
+function toggleCoaching() {
+  coachingVisible = !coachingVisible;
+  document.querySelectorAll('.coaching-notes').forEach(function(el) {
+    el.classList.toggle('visible', coachingVisible);
+  });
+  var btn = document.getElementById('toggleCoaching');
+  btn.classList.toggle('active', coachingVisible);
+  btn.innerHTML = coachingVisible
+    ? '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5C3.74 1.5 1.5 3.74 1.5 6.5S3.74 11.5 6.5 11.5 11.5 9.26 11.5 6.5 9.26 1.5 6.5 1.5ZM6.5 9.5V5.5M6.5 4.5V3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Hide Coaching'
+    : '<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1.5C3.74 1.5 1.5 3.74 1.5 6.5S3.74 11.5 6.5 11.5 11.5 9.26 11.5 6.5 9.26 1.5 6.5 1.5ZM6.5 9.5V5.5M6.5 4.5V3.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Coaching Notes';
+}
+
+// ── VARIATION TABS ─────────────────────────────────────────
+function showVariationTabs(defaultKey) {
+  activeVariation = defaultKey;
+  var tabs = document.getElementById('variationTabs');
+  tabs.style.display = 'flex';
+  document.querySelectorAll('.var-tab').forEach(function(t) {
+    t.classList.toggle('active', t.dataset.var === defaultKey);
+  });
+}
+
+function hideVariationTabs() {
+  activeVariation = null;
+  document.getElementById('variationTabs').style.display = 'none';
+}
+
+function switchVariation(key) {
+  if (!scriptData[key]) return;
+  activeVariation = key;
+  document.querySelectorAll('.var-tab').forEach(function(t) {
+    t.classList.toggle('active', t.dataset.var === key);
+  });
+  renderScript(scriptData[key]);
+  if (coachingVisible) {
+    document.querySelectorAll('.coaching-notes').forEach(function(el) {
+      el.classList.add('visible');
+    });
+  }
+}
+</script>
 </body>
 </html>
