@@ -1,9 +1,6 @@
-// netlify/functions/generate-script.js
-
-const https                          = require("https");
+const https = require("https");
 const { SYSTEM_PROMPT, buildUserPrompt } = require("./prompts");
 
-const MODEL        = "gpt-4o";
 const SECTION_KEYS = [
   "opening",
   "discovery",
@@ -15,62 +12,65 @@ const SECTION_KEYS = [
   "agent_guidance",
 ];
 
-// ── OpenAI API call ────────────────────────────────────────
-function callOpenAI(messages) {
+// ── Claude API call ────────────────────────────────────────
+function callClaude(messages) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
-      model:           MODEL,
-      temperature:     0.4,
-      max_tokens:      4096,
-      messages,
-      response_format: { type: "json_object" },
+      model: "claude-3-7-sonnet-20250219",
+      max_tokens: 4096,
+      messages: messages.map(m => ({
+        role: m.role === "system" ? "user" : m.role,
+        content: m.content
+      }))
     });
 
     const options = {
-      hostname: "api.openai.com",
-      path:     "/v1/chat/completions",
-      method:   "POST",
-      headers:  {
-        "Content-Type":   "application/json",
-        "Authorization":  `Bearer ${process.env.OPENAI_API_KEY}`,
+      hostname: "api.anthropic.com",
+      path: "/v1/messages",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": process.env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
         "Content-Length": Buffer.byteLength(body),
       },
     };
 
     const req = https.request(options, (res) => {
       let data = "";
-      res.on("data",  (chunk) => { data += chunk; });
-      res.on("end",   () => {
+      res.on("data", chunk => data += chunk);
+      res.on("end", () => {
         try {
           const parsed = JSON.parse(data);
-          if (parsed.error) return reject(new Error(parsed.error.message || "OpenAI API error"));
+          if (parsed.error) {
+            return reject(new Error(parsed.error.message || "Claude API error"));
+          }
           resolve(parsed);
-        } catch (e) {
-          reject(new Error("Failed to parse OpenAI response"));
+        } catch {
+          reject(new Error("Failed to parse Claude response"));
         }
       });
     });
 
-    req.on("error", (e) => reject(e));
+    req.on("error", reject);
     req.write(body);
     req.end();
   });
 }
 
-// ── Normalize a single variation object ───────────────────
+// ── Normalize helpers (UNCHANGED) ─────────────────────────
 function normalizeVariant(variant) {
   const result = {};
   SECTION_KEYS.forEach((key) => {
     const raw = variant[key] || {};
     result[key] = {
-      script:   raw.script   || "",
+      script: raw.script || "",
       coaching: raw.coaching || "",
     };
   });
   return result;
 }
 
-// ── Build empty sections scaffold ─────────────────────────
 function buildEmptySections() {
   const sections = {};
   SECTION_KEYS.forEach((key) => {
@@ -79,10 +79,7 @@ function buildEmptySections() {
   return sections;
 }
 
-// ── Normalize full API response ────────────────────────────
 function normalizeSections(parsed, regenerate_section) {
-
-  // Variation schema: { variation_1: {...}, variation_2: {...} }
   if (parsed.variation_1 && parsed.variation_2) {
     return {
       variation_1: normalizeVariant(parsed.variation_1),
@@ -90,37 +87,35 @@ function normalizeSections(parsed, regenerate_section) {
     };
   }
 
-  // Regeneration: single section only
   if (regenerate_section) {
     const result = buildEmptySections();
     if (parsed[regenerate_section]) {
       result[regenerate_section] = {
-        script:   parsed[regenerate_section].script   || "",
+        script: parsed[regenerate_section].script || "",
         coaching: parsed[regenerate_section].coaching || "",
       };
     }
     return result;
   }
 
-  // Standard full script
   const result = {};
   SECTION_KEYS.forEach((key) => {
     const raw = parsed[key] || {};
     result[key] = {
-      script:   raw.script   || "",
+      script: raw.script || "",
       coaching: raw.coaching || "",
     };
   });
   return result;
 }
 
-// ── Handler ────────────────────────────────────────────────
+// ── Handler ───────────────────────────────────────────────
 exports.handler = async function (event) {
   const corsHeaders = {
-    "Access-Control-Allow-Origin":  "*",
+    "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
-    "Content-Type":                 "application/json",
+    "Content-Type": "application/json",
   };
 
   if (event.httpMethod === "OPTIONS") {
@@ -130,16 +125,16 @@ exports.handler = async function (event) {
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      headers:    corsHeaders,
-      body:       JSON.stringify({ error: "Method not allowed" }),
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "Method not allowed" }),
     };
   }
 
-  if (!process.env.OPENAI_API_KEY) {
+  if (!process.env.ANTHROPIC_API_KEY) {
     return {
       statusCode: 500,
-      headers:    corsHeaders,
-      body:       JSON.stringify({ error: "OPENAI_API_KEY is not configured" }),
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "ANTHROPIC_API_KEY is not configured" }),
     };
   }
 
@@ -149,34 +144,38 @@ exports.handler = async function (event) {
   } catch {
     return {
       statusCode: 400,
-      headers:    corsHeaders,
-      body:       JSON.stringify({ error: "Invalid JSON body" }),
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "Invalid JSON body" }),
     };
   }
 
   const userPrompt = buildUserPrompt(body);
-  const messages   = [
-    { role: "system", content: SYSTEM_PROMPT },
-    { role: "user",   content: userPrompt },
+
+  const messages = [
+    {
+      role: "user",
+      content: SYSTEM_PROMPT + "\n\n" + userPrompt
+    }
   ];
 
-  let openAIResponse;
+  let claudeResponse;
   try {
-    openAIResponse = await callOpenAI(messages);
+    claudeResponse = await callClaude(messages);
   } catch (err) {
     return {
       statusCode: 502,
-      headers:    corsHeaders,
-      body:       JSON.stringify({ error: `OpenAI request failed: ${err.message}` }),
+      headers: corsHeaders,
+      body: JSON.stringify({ error: `Claude request failed: ${err.message}` }),
     };
   }
 
-  const rawContent = openAIResponse?.choices?.[0]?.message?.content;
+  const rawContent = claudeResponse?.content?.[0]?.text;
+
   if (!rawContent) {
     return {
       statusCode: 502,
-      headers:    corsHeaders,
-      body:       JSON.stringify({ error: "Empty response from OpenAI" }),
+      headers: corsHeaders,
+      body: JSON.stringify({ error: "Empty response from Claude" }),
     };
   }
 
@@ -186,10 +185,10 @@ exports.handler = async function (event) {
   } catch {
     return {
       statusCode: 502,
-      headers:    corsHeaders,
-      body:       JSON.stringify({
-        error: "OpenAI returned non-JSON content",
-        raw:   rawContent.slice(0, 500),
+      headers: corsHeaders,
+      body: JSON.stringify({
+        error: "Claude returned non-JSON content",
+        raw: rawContent.slice(0, 500),
       }),
     };
   }
@@ -198,7 +197,7 @@ exports.handler = async function (event) {
 
   return {
     statusCode: 200,
-    headers:    corsHeaders,
-    body:       JSON.stringify({ sections }),
+    headers: corsHeaders,
+    body: JSON.stringify({ sections }),
   };
 };
