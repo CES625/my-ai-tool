@@ -16,7 +16,7 @@ const SECTION_KEYS = [
 function callClaude(userPrompt) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
-      model: "claude-3-haiku-20240307", // stable model
+      model: "claude-sonnet-4-6", // stable model
       max_tokens: 4096,
       system: SYSTEM_PROMPT,
       messages: [
