@@ -108,13 +108,7 @@ body {
 /* ── Input Column ── */
 .ec-input-col {
   display: flex; flex-direction: column; gap: 16px;
-  position: sticky; top: 82px;
-  max-height: calc(100vh - 100px); overflow-y: auto;
-  padding-right: 4px;
-  scrollbar-width: thin; scrollbar-color: var(--ec-border) transparent;
 }
-.ec-input-col::-webkit-scrollbar { width: 4px; }
-.ec-input-col::-webkit-scrollbar-thumb { background: var(--ec-border); border-radius: 4px; }
 
 /* ── Cards ── */
 .ec-card {
@@ -322,7 +316,12 @@ body {
 }
 
 /* ── Output Column ── */
-.ec-output-col { min-height: 500px; display: flex; }
+.ec-output-col {
+  min-height: 500px; display: flex;
+  position: sticky; top: 82px;
+  max-height: calc(100vh - 100px);
+  align-self: start;
+}
 .ec-output-card {
   flex: 1; background: var(--ec-card); border-radius: var(--ec-radius);
   border: 1px solid var(--ec-border); box-shadow: var(--ec-shadow);
@@ -439,7 +438,7 @@ body {
 /* ── Responsive ── */
 @media (max-width: 860px) {
   .ec-main { grid-template-columns: 1fr; padding: 16px; }
-  .ec-input-col { position: static; max-height: none; overflow: visible; padding-right: 0; }
+  .ec-output-col { position: static; max-height: none; }
   .ec-config-grid { grid-template-columns: 1fr; }
   .ec-header-sub { display: none; }
   .ec-md-body { padding: 20px 18px 36px; }
