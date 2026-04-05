@@ -1,4 +1,4 @@
-var Anthropic = require("@anthropic-ai/sdk").default;
+var OpenAI = require("openai");
 
 exports.handler = async function (event) {
   if (event.httpMethod !== "POST") {
@@ -46,20 +46,20 @@ exports.handler = async function (event) {
     }
     userPrompt += "\n--- SOURCE CONTENT ---\n" + sourceContent + "\n--- END SOURCE CONTENT ---";
 
-    var client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    var client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-    var response = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
+    var response = await client.chat.completions.create({
+      model: "gpt-4o",
       max_tokens: 8000,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userPrompt }],
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: userPrompt }
+      ],
     });
 
     var resultText = "";
-    for (var i = 0; i < response.content.length; i++) {
-      if (response.content[i].type === "text") {
-        resultText += response.content[i].text;
-      }
+    if (response.choices && response.choices.length > 0) {
+      resultText = response.choices[0].message.content || "";
     }
 
     return {
