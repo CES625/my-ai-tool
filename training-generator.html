@@ -537,7 +537,7 @@ body {
         var isHeading = /^#{1,3}\s/.test(line);
         var isHr = /^---\s*$/.test(line);
         var isEmpty = !line.trim();
-        if (inOl && !isOlItem && !isEmpty) {html += "</ol>";inOl = false;}
+        if (inOl && !isOlItem) {
           if (isUlItem || (!isEmpty && !isHeading && !isHr && /^\s{2,}/.test(line))) {
             var sub = line.replace(/^[-\u2022*]\s/,"").replace(/^\s+/,"");
             if (sub) html += "<p style='margin:2px 0 2px 8px;font-size:inherit;color:inherit;'>" + sub + "</p>";
