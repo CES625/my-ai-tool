@@ -13,15 +13,18 @@ const SECTION_KEYS = [
 ];
 
 // ── Claude API call ────────────────────────────────────────
-function callClaude(messages) {
+function callClaude(userPrompt) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
-      model: "claude-3-7-sonnet-20250219",
+      model: "claude-3-sonnet-20240229", // stable model
       max_tokens: 4096,
-      messages: messages.map(m => ({
-        role: m.role === "system" ? "user" : m.role,
-        content: m.content
-      }))
+      system: SYSTEM_PROMPT,
+      messages: [
+        {
+          role: "user",
+          content: userPrompt
+        }
+      ]
     });
 
     const options = {
@@ -38,16 +41,20 @@ function callClaude(messages) {
 
     const req = https.request(options, (res) => {
       let data = "";
+
       res.on("data", chunk => data += chunk);
+
       res.on("end", () => {
         try {
           const parsed = JSON.parse(data);
+
           if (parsed.error) {
-            return reject(new Error(parsed.error.message || "Claude API error"));
+            return reject(new Error(JSON.stringify(parsed.error)));
           }
+
           resolve(parsed);
-        } catch {
-          reject(new Error("Failed to parse Claude response"));
+        } catch (err) {
+          reject(new Error("Failed to parse Claude response: " + data));
         }
       });
     });
@@ -58,7 +65,7 @@ function callClaude(messages) {
   });
 }
 
-// ── Normalize helpers (UNCHANGED) ─────────────────────────
+// ── Normalize helpers ─────────────────────────────────────
 function normalizeVariant(variant) {
   const result = {};
   SECTION_KEYS.forEach((key) => {
@@ -151,31 +158,32 @@ exports.handler = async function (event) {
 
   const userPrompt = buildUserPrompt(body);
 
-  const messages = [
-    {
-      role: "user",
-      content: SYSTEM_PROMPT + "\n\n" + userPrompt
-    }
-  ];
-
   let claudeResponse;
   try {
-    claudeResponse = await callClaude(messages);
+    claudeResponse = await callClaude(userPrompt);
   } catch (err) {
     return {
       statusCode: 502,
       headers: corsHeaders,
-      body: JSON.stringify({ error: `Claude request failed: ${err.message}` }),
+      body: JSON.stringify({
+        error: "Claude request failed",
+        details: err.message,
+      }),
     };
   }
 
-  const rawContent = claudeResponse?.content?.[0]?.text;
+  const rawContent = claudeResponse?.content
+    ?.map(c => c.text)
+    .join("\n");
 
   if (!rawContent) {
     return {
       statusCode: 502,
       headers: corsHeaders,
-      body: JSON.stringify({ error: "Empty response from Claude" }),
+      body: JSON.stringify({
+        error: "Empty response from Claude",
+        full: claudeResponse
+      }),
     };
   }
 
@@ -188,7 +196,7 @@ exports.handler = async function (event) {
       headers: corsHeaders,
       body: JSON.stringify({
         error: "Claude returned non-JSON content",
-        raw: rawContent.slice(0, 500),
+        raw_preview: rawContent.slice(0, 500),
       }),
     };
   }
