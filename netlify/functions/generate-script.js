@@ -45,18 +45,29 @@ function callClaude(userPrompt) {
       res.on("data", chunk => data += chunk);
 
       res.on("end", () => {
-        try {
-          const parsed = JSON.parse(data);
+  try {
+    console.log("CLAUDE RAW RESPONSE:", data);
+    const parsed = JSON.parse(data);
 
-          if (parsed.error) {
-            return reject(new Error(JSON.stringify(parsed.error)));
-          }
+    // CRITICAL: check HTTP status
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      return reject(new Error(
+        `Claude API error (${res.statusCode}): ${JSON.stringify(parsed)}`
+      ));
+    }
 
-          resolve(parsed);
-        } catch (err) {
-          reject(new Error("Failed to parse Claude response: " + data));
-        }
-      });
+    if (parsed.error) {
+      return reject(new Error(JSON.stringify(parsed.error)));
+    }
+
+    resolve(parsed);
+
+  } catch (err) {
+    reject(new Error(
+      `Failed to parse Claude response. Status: ${res.statusCode}, Raw: ${data}`
+    ));
+  }
+});
     });
 
     req.on("error", reject);
