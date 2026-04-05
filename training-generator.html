@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
 /* ═══════════════════════════════════════════
    CES Design System — ec-* namespace
@@ -408,6 +409,31 @@ body {
   color: var(--ec-text-muted); border-top: 1px solid var(--ec-border-light);
 }
 
+/* ── Download Dropdown ── */
+.ec-download-wrap { position: relative; }
+.ec-download-menu {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  background: var(--ec-card); border: 1px solid var(--ec-border);
+  border-radius: var(--ec-radius); box-shadow: var(--ec-shadow-md);
+  min-width: 220px; z-index: 50; overflow: hidden;
+  animation: ec-fadeUp 0.2s ease;
+}
+.ec-download-opt {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 10px 14px; border: none; background: none;
+  cursor: pointer; font-family: inherit; text-align: left;
+  transition: background 0.12s ease;
+}
+.ec-download-opt:hover { background: var(--ec-bg); }
+.ec-download-opt + .ec-download-opt { border-top: 1px solid var(--ec-border-light); }
+.ec-download-opt-title {
+  display: block; font-size: 0.82rem; font-weight: 600; color: var(--ec-text);
+}
+.ec-download-opt-desc {
+  display: block; font-size: 0.7rem; color: var(--ec-text-muted); margin-top: 1px;
+}
+.ec-download-opt svg { flex-shrink: 0; }
+
 .ec-hidden { display: none !important; }
 
 /* ── Responsive ── */
@@ -610,6 +636,29 @@ body {
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
               <span id="ec-copy-label">Copy Markdown</span>
             </button>
+            <div class="ec-download-wrap">
+              <button class="ec-btn ec-btn-primary ec-btn-sm" id="ec-download-btn">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Download</span>
+                <svg width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="ec-download-menu ec-hidden" id="ec-download-menu">
+                <button class="ec-download-opt" id="ec-dl-docx">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#2563EB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                  <div>
+                    <span class="ec-download-opt-title">Word Document</span>
+                    <span class="ec-download-opt-desc">.docx — editable format</span>
+                  </div>
+                </button>
+                <button class="ec-download-opt" id="ec-dl-pdf">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#DC2626" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>
+                  <div>
+                    <span class="ec-download-opt-title">PDF Document</span>
+                    <span class="ec-download-opt-desc">.pdf — print-ready format</span>
+                  </div>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="ec-md-body" id="ec-md-body"></div>
@@ -947,6 +996,86 @@ body {
       navigator.clipboard.writeText(rawMd);
       elCopyLabel.textContent = "Copied";
       setTimeout(function() { elCopyLabel.textContent = "Copy Markdown"; }, 2200);
+    });
+
+    /* ── Download Dropdown ── */
+    var elDownloadBtn = document.getElementById("ec-download-btn");
+    var elDownloadMenu = document.getElementById("ec-download-menu");
+    var elDlDocx = document.getElementById("ec-dl-docx");
+    var elDlPdf = document.getElementById("ec-dl-pdf");
+
+    elDownloadBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      elDownloadMenu.classList.toggle("ec-hidden");
+    });
+    document.addEventListener("click", function() {
+      elDownloadMenu.classList.add("ec-hidden");
+    });
+    elDownloadMenu.addEventListener("click", function(e) {
+      e.stopPropagation();
+    });
+
+    function getDocTitle() {
+      var title = elCustomTitle.value.trim() || elObjective.value.trim() || "Training Document";
+      return title.replace(/[^a-zA-Z0-9 _-]/g, "").replace(/\s+/g, "_").substring(0, 60);
+    }
+
+    function buildExportHtml() {
+      var content = elMdBody.innerHTML;
+      return '<!DOCTYPE html><html><head><meta charset="UTF-8">' +
+        '<style>' +
+        'body { font-family: Calibri, Arial, sans-serif; color: #1a1a1a; line-height: 1.7; max-width: 700px; margin: 0 auto; padding: 40px 20px; }' +
+        'h1 { font-size: 22px; font-weight: 700; color: #111; border-bottom: 2px solid #2563EB; padding-bottom: 8px; margin: 0 0 16px 0; }' +
+        'h2 { font-size: 17px; font-weight: 700; color: #1a1a1a; border-bottom: 1px solid #ddd; padding-bottom: 6px; margin: 28px 0 10px 0; }' +
+        'h3 { font-size: 14px; font-weight: 600; color: #333; margin: 20px 0 6px 0; }' +
+        'p { font-size: 13px; color: #333; margin: 0 0 10px 0; }' +
+        'ul, ol { margin: 6px 0 14px 24px; padding: 0; }' +
+        'li { font-size: 13px; color: #333; margin-bottom: 4px; line-height: 1.6; }' +
+        'strong { color: #111; }' +
+        'hr { border: none; border-top: 1px solid #ddd; margin: 24px 0; }' +
+        'code { font-family: Consolas, monospace; font-size: 12px; background: #f5f5f5; padding: 1px 4px; border-radius: 3px; }' +
+        '.footer { text-align: center; font-size: 10px; color: #999; margin-top: 40px; padding-top: 16px; border-top: 1px solid #eee; }' +
+        '</style></head><body>' +
+        content +
+        '<div class="footer">\u00A9 Consumer Engagement Solutions, LLC. \u2014 All Rights Reserved.</div>' +
+        '</body></html>';
+    }
+
+    /* ── Download as Word (.docx) ── */
+    elDlDocx.addEventListener("click", function() {
+      elDownloadMenu.classList.add("ec-hidden");
+      var html = buildExportHtml();
+      var blob = new Blob(['\ufeff' + html], { type: 'application/msword' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = getDocTitle() + ".doc";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    /* ── Download as PDF ── */
+    elDlPdf.addEventListener("click", function() {
+      elDownloadMenu.classList.add("ec-hidden");
+
+      var container = document.createElement("div");
+      container.innerHTML = buildExportHtml();
+      container.style.cssText = "position:absolute;left:-9999px;top:0;width:700px;";
+      document.body.appendChild(container);
+
+      var opt = {
+        margin: [0.6, 0.7, 0.6, 0.7],
+        filename: getDocTitle() + ".pdf",
+        image: { type: "jpeg", quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
+      };
+
+      html2pdf().set(opt).from(container).save().then(function() {
+        document.body.removeChild(container);
+      });
     });
 
     /* ── Reset ── */
