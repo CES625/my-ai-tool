@@ -1,8 +1,7 @@
 {
-  "name": "training-document-generator",
+  "name": "my-ai-tool",
   "version": "1.0.0",
-  "description": "AI-powered Training Document Generator — CES",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.39.0"
+    "openai": "^4.52.0"
   }
 }
