@@ -3,7 +3,7 @@
 const https                          = require("https");
 const { SYSTEM_PROMPT, buildUserPrompt } = require("./prompts");
 
-const MODEL        = "gpt-4o";
+const MODEL        = "gpt-5.4-mini";
 const SECTION_KEYS = [
   "opening",
   "discovery",
