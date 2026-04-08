@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Revenue Opportunity Generator | CES</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --primary-light: #EFF6FF;
+  --primary-glow: rgba(37,99,235,0.18);
+  --teal: #0D9488;
+  --green: #16A34A;
+  --amber: #D97706;
+  --red: #DC2626;
+  --indigo: #4F46E5;
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --border: #E5E7EB;
+  --border-light: #F1F5F9;
+  --text: #111827;
+  --text-secondary: #6B7280;
+  --text-muted: #9CA3AF;
+  --radius: 10px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.05);
+  --shadow-hover: 0 4px 12px rgba(0,0,0,0.06);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+.ec-wrap { max-width: 1100px; margin: 0 auto; padding: 28px 24px 64px; }
+.ec-header { margin-bottom: 22px; }
+.ec-header h1 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.ec-header p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.ec-grid {
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .ec-grid { grid-template-columns: 1fr; }
+}
+
+/* CARDS */
+.ec-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+  border-left: 3px solid var(--border);
+  animation: ec-fadeUp 0.4s ease both;
+}
+.ec-card.ec-teal { border-left-color: var(--teal); }
+.ec-card.ec-blue { border-left-color: var(--primary); }
+.ec-card.ec-indigo { border-left-color: var(--indigo); }
+.ec-card.ec-amber { border-left-color: var(--amber); }
+.ec-card.ec-green { border-left-color: var(--green); }
+.ec-card:nth-child(1) { animation-delay: 0s; }
+.ec-card:nth-child(2) { animation-delay: 0.05s; }
+.ec-card:nth-child(3) { animation-delay: 0.1s; }
+.ec-card:nth-child(4) { animation-delay: 0.15s; }
+.ec-card:nth-child(5) { animation-delay: 0.2s; }
+.ec-card:nth-child(6) { animation-delay: 0.25s; }
+@keyframes ec-fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ec-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.ec-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+}
+
+/* INPUTS */
+.ec-field { margin-bottom: 12px; }
+.ec-field:last-child { margin-bottom: 0; }
+.ec-field label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.ec-input, .ec-select, .ec-textarea {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #FAFBFC;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text);
+  transition: all 0.15s ease;
+}
+.ec-textarea { resize: vertical; min-height: 64px; line-height: 1.5; }
+.ec-input:focus, .ec-select:focus, .ec-textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+  background: #fff;
+}
+
+/* TOGGLES (channels) */
+.ec-toggle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.ec-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #FAFBFC;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  user-select: none;
+}
+.ec-toggle:hover { border-color: var(--primary); }
+.ec-toggle.ec-active {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 600;
+}
+.ec-toggle-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--border); flex-shrink: 0;
+}
+.ec-toggle.ec-active .ec-toggle-dot { background: var(--primary); }
+
+/* SLIDER */
+.ec-slider-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.ec-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+}
+.ec-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  background: var(--primary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+.ec-slider::-moz-range-thumb {
+  width: 18px; height: 18px;
+  background: var(--primary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #fff;
+}
+.ec-slider-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 22px;
+  text-align: center;
+}
+
+/* DEPTH SEGMENT */
+.ec-segment {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px;
+  background: #F1F5F9;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+}
+.ec-segment button {
+  padding: 7px 8px;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ec-segment button.ec-active {
+  background: #fff;
+  color: var(--primary);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* BUTTONS */
+.ec-btn-primary {
+  width: 100%;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  letter-spacing: 0.01em;
+}
+.ec-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px var(--primary-glow); }
+.ec-btn-primary:active { transform: scale(0.97); }
+.ec-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.ec-btn-ghost {
+  padding: 8px 14px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.ec-btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+
+/* OUTPUT COLUMN */
+.ec-output-col {
+  position: sticky;
+  top: 24px;
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+}
+@media (max-width: 860px) {
+  .ec-output-col { position: static; max-height: none; }
+}
+.ec-output-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 460px;
+}
+.ec-output-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FAFBFC;
+}
+.ec-output-header h2 {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text);
+}
+.ec-output-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+}
+.ec-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: var(--text-muted);
+  padding: 40px 20px;
+}
+.ec-empty-icon {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--primary-light);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+  color: var(--primary);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.ec-empty p { font-size: 0.85rem; max-width: 280px; }
+
+/* LOADING BAR */
+.ec-loading {
+  display: none;
+  padding: 18px;
+}
+.ec-loading.ec-show { display: block; }
+.ec-loading-text {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  text-align: center;
+}
+.ec-loading-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--border-light);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.ec-loading-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  width: 30%;
+  background: linear-gradient(90deg, var(--primary), var(--indigo));
+  border-radius: 2px;
+  animation: ec-slide 1.4s ease-in-out infinite;
+}
+@keyframes ec-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(450%); }
+}
+
+/* OPPORTUNITY CARD */
+.ec-opp {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow);
+  border-left: 3px solid var(--primary);
+  animation: ec-fadeUp 0.4s ease both;
+}
+.ec-opp.ec-impact-high { border-left-color: var(--green); }
+.ec-opp.ec-impact-medium { border-left-color: var(--amber); }
+.ec-opp.ec-impact-low { border-left-color: var(--text-muted); }
+.ec-opp-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-light);
+}
+.ec-opp-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+  flex: 1;
+}
+.ec-opp-num {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-bottom: 5px;
+  letter-spacing: 0.05em;
+}
+.ec-badges {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.ec-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.ec-badge-high { background: #DCFCE7; color: #166534; }
+.ec-badge-medium { background: #FEF3C7; color: #92400E; }
+.ec-badge-low { background: #F1F5F9; color: #475569; }
+.ec-opp-section {
+  margin-top: 10px;
+}
+.ec-opp-section-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+.ec-opp-section-body {
+  font-size: 0.83rem;
+  color: var(--text);
+  line-height: 1.55;
+}
+.ec-opp-section.ec-pitch {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--primary-light);
+  border-radius: var(--radius-sm);
+  border-left: 2px solid var(--primary);
+}
+.ec-opp-section.ec-pitch .ec-opp-section-label { color: var(--primary); }
+
+/* DOWNLOAD DROPDOWN */
+.ec-dl-wrap { position: relative; }
+.ec-dl-btn {
+  padding: 8px 14px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ec-dl-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ec-dl-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  min-width: 240px;
+  z-index: 100;
+  overflow: hidden;
+}
+.ec-dl-menu.ec-show { display: block; }
+.ec-dl-item {
+  padding: 11px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-light);
+  transition: background 0.12s ease;
+}
+.ec-dl-item:last-child { border-bottom: none; }
+.ec-dl-item:hover { background: var(--primary-light); }
+.ec-dl-item-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 1px;
+}
+.ec-dl-item-desc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.ec-error {
+  background: #FEE2E2;
+  border: 1px solid #FCA5A5;
+  color: #991B1B;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  margin: 12px 0;
+}
+.ec-footer {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+</style>
+</head>
+<body>
+
+<div class="ec-wrap">
+  <div class="ec-header">
+    <h1>Revenue Opportunity Generator</h1>
+    <p>Generate high-impact, actionable revenue plays for any contact center program — built for CROs, ops leaders, and client success teams.</p>
+  </div>
+
+  <div class="ec-grid">
+
+    <!-- LEFT: INPUTS -->
+    <div class="ec-input-col">
+
+      <div class="ec-card ec-teal">
+        <div class="ec-card-header"><span class="ec-label">Program Profile</span></div>
+        <div class="ec-field">
+          <label for="programType">Program Type</label>
+          <select id="programType" class="ec-select">
+            <option value="">Select…</option>
+            <option>Inbound Customer Support</option>
+            <option>Outbound Sales</option>
+            <option>Retention / Save Desk</option>
+            <option>Win-Back</option>
+            <option>Claims Processing</option>
+            <option>Tech Support</option>
+            <option>Collections</option>
+            <option>Lead Generation / Qualification</option>
+            <option>Back-Office / Admin</option>
+            <option>QA / CX Operations</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="ec-field">
+          <label for="industry">Industry / Vertical</label>
+          <input id="industry" class="ec-input" type="text" placeholder="e.g., Health insurance, Telecom, SaaS, Utilities" />
+        </div>
+      </div>
+
+      <div class="ec-card ec-blue">
+        <div class="ec-card-header"><span class="ec-label">Current Scope</span></div>
+        <div class="ec-field">
+          <label for="currentServices">Current Services Provided</label>
+          <textarea id="currentServices" class="ec-textarea" placeholder="What does your team handle today? Inbound calls, tier-1 troubleshooting, billing questions, etc."></textarea>
+        </div>
+        <div class="ec-field">
+          <label>Channels In Use</label>
+          <div class="ec-toggle-grid" id="channelsGrid">
+            <div class="ec-toggle" data-channel="Voice"><span class="ec-toggle-dot"></span>Voice</div>
+            <div class="ec-toggle" data-channel="Chat"><span class="ec-toggle-dot"></span>Chat</div>
+            <div class="ec-toggle" data-channel="Email"><span class="ec-toggle-dot"></span>Email</div>
+            <div class="ec-toggle" data-channel="SMS"><span class="ec-toggle-dot"></span>SMS</div>
+            <div class="ec-toggle" data-channel="Social"><span class="ec-toggle-dot"></span>Social</div>
+            <div class="ec-toggle" data-channel="Self-service / IVR"><span class="ec-toggle-dot"></span>Self-service</div>
+            <div class="ec-toggle" data-channel="Video"><span class="ec-toggle-dot"></span>Video</div>
+            <div class="ec-toggle" data-channel="Back-office"><span class="ec-toggle-dot"></span>Back-office</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ec-card ec-indigo">
+        <div class="ec-card-header"><span class="ec-label">Context & Gaps</span></div>
+        <div class="ec-field">
+          <label for="touchpoints">Customer Journey Touchpoints</label>
+          <textarea id="touchpoints" class="ec-textarea" placeholder="Where in the journey does your team touch the customer? Onboarding, billing inquiries, renewal, escalation, etc."></textarea>
+        </div>
+        <div class="ec-field">
+          <label for="painPoints">Known Pain Points / Gaps</label>
+          <textarea id="painPoints" class="ec-textarea" placeholder="What's broken, missing, or underperforming? Repeat contacts, low FCR, missed upsell, etc."></textarea>
+        </div>
+        <div class="ec-field">
+          <label for="kpis">Current KPIs / Metrics (optional)</label>
+          <textarea id="kpis" class="ec-textarea" placeholder="AHT, FCR, CSAT, conversion rate, occupancy, attach rate, etc."></textarea>
+        </div>
+        <div class="ec-field">
+          <label for="constraints">Constraints (optional)</label>
+          <textarea id="constraints" class="ec-textarea" placeholder="Compliance (HIPAA, PCI, TCPA), geography, tech stack limits, client restrictions, etc."></textarea>
+        </div>
+      </div>
+
+      <div class="ec-card ec-amber">
+        <div class="ec-card-header"><span class="ec-label">Output Settings</span></div>
+        <div class="ec-field">
+          <label>Number of Opportunities</label>
+          <div class="ec-slider-row">
+            <input type="range" min="4" max="6" value="5" step="1" class="ec-slider" id="countSlider" />
+            <span class="ec-slider-value" id="countValue">5</span>
+          </div>
+        </div>
+        <div class="ec-field">
+          <label>Depth</label>
+          <div class="ec-segment" id="depthSeg">
+            <button data-depth="concise">Concise</button>
+            <button data-depth="standard" class="ec-active">Standard</button>
+            <button data-depth="deep">Deep</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="ec-btn-primary" id="generateBtn">Generate Opportunities</button>
+    </div>
+
+    <!-- RIGHT: OUTPUT -->
+    <div class="ec-output-col">
+      <div class="ec-output-card">
+        <div class="ec-output-header">
+          <h2>Revenue Opportunities</h2>
+          <div class="ec-dl-wrap">
+            <button class="ec-dl-btn" id="dlBtn" disabled>Download ▾</button>
+            <div class="ec-dl-menu" id="dlMenu">
+              <div class="ec-dl-item" data-format="word">
+                <div class="ec-dl-item-title">Word Document (.doc)</div>
+                <div class="ec-dl-item-desc">Editable format for sharing & editing</div>
+              </div>
+              <div class="ec-dl-item" data-format="pdf">
+                <div class="ec-dl-item-title">PDF Document</div>
+                <div class="ec-dl-item-desc">Print-ready, polished layout</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="ec-loading" id="loading">
+          <div class="ec-loading-text">Generating revenue opportunities…</div>
+          <div class="ec-loading-bar"></div>
+        </div>
+        <div class="ec-output-scroll" id="output">
+          <div class="ec-empty">
+            <div class="ec-empty-icon">$</div>
+            <p>Fill in the program profile on the left and click <strong>Generate</strong> to surface revenue opportunities tailored to this account.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="ec-footer">© Consumer Engagement Solutions, LLC. — All Rights Reserved.</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+(function() {
+  var state = {
+    channels: [],
+    depth: 'standard',
+    count: 5,
+    opportunities: null,
+    inputs: null
+  };
+
+  // CHANNELS
+  var channelEls = document.querySelectorAll('#channelsGrid .ec-toggle');
+  channelEls.forEach(function(el) {
+    el.addEventListener('click', function() {
+      var ch = el.getAttribute('data-channel');
+      if (el.classList.contains('ec-active')) {
+        el.classList.remove('ec-active');
+        state.channels = state.channels.filter(function(c) { return c !== ch; });
+      } else {
+        el.classList.add('ec-active');
+        state.channels.push(ch);
+      }
+    });
+  });
+
+  // SLIDER
+  var slider = document.getElementById('countSlider');
+  var sliderVal = document.getElementById('countValue');
+  slider.addEventListener('input', function() {
+    state.count = parseInt(slider.value);
+    sliderVal.textContent = slider.value;
+  });
+
+  // DEPTH
+  var depthBtns = document.querySelectorAll('#depthSeg button');
+  depthBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      depthBtns.forEach(function(b) { b.classList.remove('ec-active'); });
+      btn.classList.add('ec-active');
+      state.depth = btn.getAttribute('data-depth');
+    });
+  });
+
+  // DOWNLOAD MENU
+  var dlBtn = document.getElementById('dlBtn');
+  var dlMenu = document.getElementById('dlMenu');
+  dlBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    if (dlBtn.disabled) return;
+    dlMenu.classList.toggle('ec-show');
+  });
+  document.addEventListener('click', function() { dlMenu.classList.remove('ec-show'); });
+  document.querySelectorAll('.ec-dl-item').forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.stopPropagation();
+      dlMenu.classList.remove('ec-show');
+      var fmt = item.getAttribute('data-format');
+      if (fmt === 'word') downloadWord();
+      else if (fmt === 'pdf') downloadPDF();
+    });
+  });
+
+  // GENERATE
+  document.getElementById('generateBtn').addEventListener('click', generate);
+
+  function getInputs() {
+    return {
+      programType: document.getElementById('programType').value.trim(),
+      industry: document.getElementById('industry').value.trim(),
+      currentServices: document.getElementById('currentServices').value.trim(),
+      channels: state.channels.join(', '),
+      touchpoints: document.getElementById('touchpoints').value.trim(),
+      painPoints: document.getElementById('painPoints').value.trim(),
+      kpis: document.getElementById('kpis').value.trim(),
+      constraints: document.getElementById('constraints').value.trim(),
+      count: state.count,
+      depth: state.depth
+    };
+  }
+
+  function showError(msg) {
+    var output = document.getElementById('output');
+    output.innerHTML = '<div class="ec-error">' + escapeHtml(msg) + '</div>';
+  }
+
+  function generate() {
+    var inputs = getInputs();
+    if (!inputs.programType || !inputs.industry || !inputs.currentServices) {
+      showError('Please fill in Program Type, Industry, and Current Services to continue.');
+      return;
+    }
+
+    var btn = document.getElementById('generateBtn');
+    var loading = document.getElementById('loading');
+    var output = document.getElementById('output');
+
+    btn.disabled = true;
+    btn.textContent = 'Generating…';
+    loading.classList.add('ec-show');
+    output.innerHTML = '';
+    dlBtn.disabled = true;
+
+    fetch('/.netlify/functions/revenue-generator', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(inputs)
+    })
+    .then(function(r) { return r.json().then(function(data) { return { ok: r.ok, data: data }; }); })
+    .then(function(res) {
+      loading.classList.remove('ec-show');
+      btn.disabled = false;
+      btn.textContent = 'Generate Opportunities';
+      if (!res.ok) {
+        showError(res.data.error || 'Generation failed. Please try again.');
+        return;
+      }
+      state.opportunities = res.data.result.opportunities;
+      state.inputs = inputs;
+      renderOpportunities(state.opportunities);
+      dlBtn.disabled = false;
+    })
+    .catch(function(err) {
+      loading.classList.remove('ec-show');
+      btn.disabled = false;
+      btn.textContent = 'Generate Opportunities';
+      showError('Network error: ' + err.message);
+    });
+  }
+
+  function renderOpportunities(opps) {
+    var output = document.getElementById('output');
+    if (!opps || !opps.length) {
+      output.innerHTML = '<div class="ec-error">No opportunities returned. Try regenerating.</div>';
+      return;
+    }
+    var html = '';
+    opps.forEach(function(o, i) {
+      var impact = (o.impact || 'Medium').toLowerCase();
+      var effort = (o.effort || 'Medium').toLowerCase();
+      html += '<div class="ec-opp ec-impact-' + impact + '">';
+      html += '<div class="ec-opp-head">';
+      html += '<div style="flex:1;">';
+      html += '<div class="ec-opp-num">OPPORTUNITY ' + (i+1) + '</div>';
+      html += '<div class="ec-opp-title">' + escapeHtml(o.name || 'Untitled') + '</div>';
+      html += '</div>';
+      html += '<div class="ec-badges">';
+      html += '<span class="ec-badge ec-badge-' + impact + '">Impact: ' + escapeHtml(o.impact || 'Medium') + '</span>';
+      html += '<span class="ec-badge ec-badge-' + effort + '">Effort: ' + escapeHtml(o.effort || 'Medium') + '</span>';
+      html += '</div>';
+      html += '</div>';
+
+      html += sectionBlock('Concept', o.concept);
+      html += sectionBlock('How It Works Operationally', o.operations);
+      html += sectionBlock('Revenue Model', o.revenueModel);
+      html += sectionBlock('Why It Fits', o.fit);
+
+      html += '<div class="ec-opp-section ec-pitch">';
+      html += '<div class="ec-opp-section-label">Client Pitch Angle</div>';
+      html += '<div class="ec-opp-section-body">' + escapeHtml(o.pitchAngle || '') + '</div>';
+      html += '</div>';
+
+      html += '</div>';
+    });
+    output.innerHTML = html;
+  }
+
+  function sectionBlock(label, body) {
+    return '<div class="ec-opp-section">' +
+      '<div class="ec-opp-section-label">' + label + '</div>' +
+      '<div class="ec-opp-section-body">' + escapeHtml(body || '') + '</div>' +
+    '</div>';
+  }
+
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+  }
+
+  // EXPORT — shared body builder
+  function buildExportHTML() {
+    var i = state.inputs || {};
+    var opps = state.opportunities || [];
+    var date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    var html = '';
+    html += '<h1 style="font-size:20pt;color:#2563EB;margin-bottom:4pt;border-bottom:2px solid #2563EB;padding-bottom:6pt;">Revenue Opportunity Brief</h1>';
+    html += '<p style="font-size:10pt;color:#6B7280;margin-bottom:14pt;">' + escapeHtml(i.programType) + ' &nbsp;|&nbsp; ' + escapeHtml(i.industry) + ' &nbsp;|&nbsp; ' + date + '</p>';
+
+    html += '<h2 style="font-size:11pt;color:#111827;margin-top:14pt;margin-bottom:6pt;border-bottom:1px solid #E5E7EB;padding-bottom:3pt;text-transform:uppercase;letter-spacing:0.05em;">Program Profile</h2>';
+    html += '<table style="width:100%;font-size:10pt;border-collapse:collapse;margin-bottom:14pt;">';
+    html += profileRow('Program Type', i.programType);
+    html += profileRow('Industry', i.industry);
+    html += profileRow('Current Services', i.currentServices);
+    html += profileRow('Channels', i.channels);
+    if (i.touchpoints) html += profileRow('Touchpoints', i.touchpoints);
+    if (i.painPoints) html += profileRow('Pain Points', i.painPoints);
+    if (i.kpis) html += profileRow('KPIs', i.kpis);
+    if (i.constraints) html += profileRow('Constraints', i.constraints);
+    html += '</table>';
+
+    opps.forEach(function(o, idx) {
+      html += '<div style="page-break-inside:avoid;margin-top:18pt;border-left:3px solid #2563EB;padding:8pt 12pt;background:#F8FAFC;">';
+      html += '<div style="font-size:8pt;color:#2563EB;font-weight:700;letter-spacing:0.08em;">OPPORTUNITY ' + (idx+1) + ' &nbsp;·&nbsp; IMPACT: ' + escapeHtml(o.impact) + ' &nbsp;·&nbsp; EFFORT: ' + escapeHtml(o.effort) + '</div>';
+      html += '<h3 style="font-size:13pt;color:#111827;margin-top:3pt;margin-bottom:8pt;">' + escapeHtml(o.name) + '</h3>';
+      html += exportSection('Concept', o.concept);
+      html += exportSection('How It Works Operationally', o.operations);
+      html += exportSection('Revenue Model', o.revenueModel);
+      html += exportSection('Why It Fits', o.fit);
+      html += '<div style="margin-top:8pt;padding:8pt 10pt;background:#EFF6FF;border-left:2px solid #2563EB;">';
+      html += '<div style="font-size:8pt;color:#2563EB;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:3pt;">Client Pitch Angle</div>';
+      html += '<div style="font-size:10pt;color:#111827;">' + escapeHtml(o.pitchAngle) + '</div>';
+      html += '</div>';
+      html += '</div>';
+    });
+
+    html += '<p style="margin-top:24pt;text-align:center;font-size:8pt;color:#9CA3AF;">© Consumer Engagement Solutions, LLC. — All Rights Reserved.</p>';
+    return html;
+  }
+
+  function profileRow(label, val) {
+    return '<tr><td style="padding:3pt 8pt 3pt 0;color:#6B7280;font-weight:600;width:130pt;vertical-align:top;">' + label + '</td><td style="padding:3pt 0;color:#111827;">' + escapeHtml(val || '—') + '</td></tr>';
+  }
+
+  function exportSection(label, body) {
+    return '<div style="margin-top:6pt;">' +
+      '<div style="font-size:8pt;color:#6B7280;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:2pt;">' + label + '</div>' +
+      '<div style="font-size:10pt;color:#111827;line-height:1.5;">' + escapeHtml(body || '') + '</div>' +
+    '</div>';
+  }
+
+  function downloadWord() {
+    var body = buildExportHTML();
+    var html = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Revenue Opportunity Brief</title><style>body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#111827;margin:1in;}</style></head><body>' + body + '</body></html>';
+    var blob = new Blob([html], { type: 'application/msword' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'Revenue-Opportunity-Brief.doc';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function downloadPDF() {
+    var container = document.createElement('div');
+    container.style.padding = '0';
+    container.style.fontFamily = 'Calibri, Arial, sans-serif';
+    container.style.color = '#111827';
+    container.innerHTML = buildExportHTML();
+    var opt = {
+      margin: [0.6, 0.6, 0.6, 0.6],
+      filename: 'Revenue-Opportunity-Brief.pdf',
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+    html2pdf().set(opt).from(container).save();
+  }
+})();
+</script>
+</body>
+</html>
